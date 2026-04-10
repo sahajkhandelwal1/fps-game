@@ -112,3 +112,4 @@ import './GameStateManager.js';
 import './LevelLoader.js';
 import '../ui/HUD.js';
 import '../ui/Screens.js';
+import '../systems/UpgradeSystem.js';

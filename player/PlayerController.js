@@ -71,7 +71,10 @@ scene.onBeforeRenderObservable.add(() => {
 
 // --- Health System ---
 let currentHP = 100;
-const maxHP = 100;
+let maxHP = 100;
+let damageReduction = 0;      // armor upgrade: reduces incoming damage by a fraction
+let lastDamageTime = 0;       // timestamp of last damage taken (for regen)
+let regenInterval = null;     // setInterval handle for hp_regen upgrade
 
 const dispatchHPChanged = () => {
   window.dispatchEvent(
@@ -85,7 +88,9 @@ const dispatchDead = () => {
 
 const takeDamage = (amount) => {
   if (currentHP <= 0) return; // already dead
-  currentHP = Math.max(0, currentHP - amount);
+  const reduced = amount * (1 - damageReduction);
+  currentHP = Math.max(0, currentHP - reduced);
+  lastDamageTime = Date.now();
   dispatchHPChanged();
   if (currentHP === 0) {
     // first time reaching 0 — dispatch death
@@ -100,5 +105,37 @@ const heal = (amount) => {
   currentHP = Math.min(maxHP, currentHP + amount);
   dispatchHPChanged();
 };
+
+// --- Upgrade: applied event handler ---
+window.addEventListener('upgrade:applied', (e) => {
+  const { id } = e.detail;
+
+  switch (id) {
+    case 'hp_max':
+      maxHP += 20;
+      currentHP = Math.min(currentHP, maxHP);
+      dispatchHPChanged();
+      break;
+
+    case 'hp_regen':
+      // Start regen: +1 HP/sec when out of combat for 5 seconds
+      if (regenInterval !== null) break; // already running
+      regenInterval = setInterval(() => {
+        if (currentHP <= 0) return;
+        const outOfCombat = (Date.now() - lastDamageTime) > 5000;
+        if (outOfCombat && currentHP < maxHP) {
+          heal(1);
+        }
+      }, 1000);
+      break;
+
+    case 'armor':
+      damageReduction = 0.1;
+      break;
+
+    default:
+      break;
+  }
+});
 
 export { takeDamage, getHP, heal, camera, cleanup };

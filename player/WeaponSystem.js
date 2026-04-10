@@ -44,6 +44,10 @@ const WEAPON_ORDER = ['rifle', 'shotgun', 'sniper'];
 const DEFAULT_FOV = Math.PI / 3;
 const SCOPED_FOV  = Math.PI / 6;
 
+// --- Upgrade multipliers ---
+let damageMult  = 1.0;   // upgrade: damage +15%
+let reloadMult  = 1.0;   // upgrade: reload speed (0.8 = 20% faster)
+
 // --- State ---
 const unlockedWeapons = new Set(['rifle']);
 
@@ -122,7 +126,7 @@ const processHit = (hit, damage) => {
   // Check if this mesh belongs to an enemy
   if (!mesh.metadata || mesh.metadata.enemyId === undefined) return;
 
-  let finalDamage = damage;
+  let finalDamage = damage * damageMult;
   let isHeadshot  = false;
 
   if (mesh.name && mesh.name.toLowerCase().includes('head')) {
@@ -227,7 +231,7 @@ const reload = () => {
     isReloading   = false;
     reloadTimer   = null;
     dispatchAmmoChanged();
-  }, weapon.reloadTime);
+  }, weapon.reloadTime * reloadMult);
 };
 
 const cancelReload = () => {
@@ -373,5 +377,31 @@ const destroy = () => {
   stopFiring();
   cancelReload();
 };
+
+// --- Upgrade: applied event handler ---
+window.addEventListener('upgrade:applied', (e) => {
+  const { id } = e.detail;
+
+  switch (id) {
+    case 'damage':
+      damageMult = 1.15;
+      break;
+
+    case 'reload_speed':
+      reloadMult = 0.8; // 80% of normal reload time = 20% faster
+      break;
+
+    case 'ammo_cap':
+      // Multiply all reserve ammo by 1.5
+      for (const state of Object.values(ammoState)) {
+        state.reserve = Math.round(state.reserve * 1.5);
+      }
+      dispatchAmmoChanged();
+      break;
+
+    default:
+      break;
+  }
+});
 
 export { getCurrentWeapon, switchWeapon, unlockWeapon, reload, getAmmo, destroy };
