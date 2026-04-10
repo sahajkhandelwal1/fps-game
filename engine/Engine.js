@@ -108,3 +108,5 @@ export { engine, scene };
 import '../player/PlayerController.js';
 import '../player/WeaponSystem.js';
 import '../enemies/EnemyAI.js';
+import './GameStateManager.js';
+import './LevelLoader.js';

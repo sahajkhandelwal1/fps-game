@@ -1,0 +1,23 @@
+{
+  "id": "level1",
+  "name": "Into the Field",
+  "environment": "forest",
+  "winCondition": "eliminateAll",
+  "playerStart": [0, 2, -20],
+  "geometry": [
+    { "type": "ground", "name": "mainGround", "position": [0, 0, 0], "size": [100, 100] },
+    { "type": "box", "name": "tree1", "position": [-8, 2, 5], "size": [1, 4, 1], "color": [0.3, 0.5, 0.2] },
+    { "type": "box", "name": "tree2", "position": [6, 2, 12], "size": [1, 4, 1], "color": [0.3, 0.5, 0.2] },
+    { "type": "box", "name": "rock1", "position": [3, 0.5, 3], "size": [2, 1, 2], "color": [0.5, 0.5, 0.5] },
+    { "type": "box", "name": "cover1", "position": [-5, 1, 15], "size": [3, 2, 1], "color": [0.4, 0.3, 0.2] }
+  ],
+  "enemySpawns": [
+    { "type": "infantry", "position": [0, 1, 15], "patrol": [[0, 1, 15], [5, 1, 20], [-5, 1, 20]] },
+    { "type": "infantry", "position": [10, 1, 25], "patrol": [[10, 1, 25], [15, 1, 30]] }
+  ],
+  "pickups": [
+    { "type": "ammo", "weapon": "rifle", "position": [-3, 1, 5] },
+    { "type": "health", "amount": 30, "position": [5, 1, 10] }
+  ],
+  "weaponUnlock": null
+}

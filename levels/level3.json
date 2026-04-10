@@ -1,0 +1,36 @@
+{
+  "id": "level3",
+  "name": "Warehouse District",
+  "environment": "warehouse",
+  "winCondition": "eliminateAll",
+  "playerStart": [0, 2, -30],
+  "geometry": [
+    { "type": "ground", "name": "warehouseFloor", "position": [0, 0, 0], "size": [80, 80] },
+    { "type": "box", "name": "outerWallN", "position": [0, 3, 35], "size": [80, 6, 1], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "outerWallS", "position": [0, 3, -35], "size": [80, 6, 1], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "outerWallE", "position": [39, 3, 0], "size": [1, 6, 70], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "outerWallW", "position": [-39, 3, 0], "size": [1, 6, 70], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "shelf1", "position": [-15, 2, 5], "size": [1, 4, 20], "color": [0.5, 0.4, 0.3] },
+    { "type": "box", "name": "shelf2", "position": [15, 2, 5], "size": [1, 4, 20], "color": [0.5, 0.4, 0.3] },
+    { "type": "box", "name": "shelf3", "position": [-5, 2, -5], "size": [1, 4, 15], "color": [0.5, 0.4, 0.3] },
+    { "type": "box", "name": "shelf4", "position": [5, 2, -5], "size": [1, 4, 15], "color": [0.5, 0.4, 0.3] },
+    { "type": "box", "name": "crate1", "position": [-20, 1, -10], "size": [2, 2, 2], "color": [0.5, 0.4, 0.2] },
+    { "type": "box", "name": "crate2", "position": [-20, 1, -14], "size": [2, 2, 2], "color": [0.5, 0.4, 0.2] },
+    { "type": "box", "name": "crate3", "position": [20, 1, 10], "size": [2, 2, 2], "color": [0.5, 0.4, 0.2] },
+    { "type": "box", "name": "dividerWall", "position": [0, 1.5, 15], "size": [30, 3, 1], "color": [0.4, 0.4, 0.45] }
+  ],
+  "enemySpawns": [
+    { "type": "infantry", "position": [-18, 1, 10], "patrol": [[-18, 1, 10], [-18, 1, 20]] },
+    { "type": "infantry", "position": [18, 1, 8], "patrol": [[18, 1, 8], [18, 1, 18]] },
+    { "type": "armored", "position": [0, 1, 20], "patrol": [[0, 1, 20], [5, 1, 28], [-5, 1, 28]] },
+    { "type": "infantry", "position": [-10, 1, 25], "patrol": [[-10, 1, 25], [10, 1, 25]] },
+    { "type": "armored", "position": [0, 1, -15], "patrol": [[0, 1, -15], [5, 1, -20]] }
+  ],
+  "pickups": [
+    { "type": "ammo", "weapon": "shotgun", "position": [-18, 1, 0] },
+    { "type": "ammo", "weapon": "rifle", "position": [18, 1, 0] },
+    { "type": "health", "amount": 40, "position": [0, 1, -20] },
+    { "type": "ammo", "weapon": "shotgun", "position": [10, 1, -10] }
+  ],
+  "weaponUnlock": null
+}

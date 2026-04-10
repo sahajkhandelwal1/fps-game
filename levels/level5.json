@@ -1,0 +1,39 @@
+{
+  "id": "level5",
+  "name": "The Checkpoint",
+  "environment": "checkpoint",
+  "winCondition": "eliminateAll",
+  "playerStart": [0, 2, -40],
+  "geometry": [
+    { "type": "ground", "name": "checkpointGround", "position": [0, 0, 0], "size": [100, 120] },
+    { "type": "box", "name": "gatehouse", "position": [0, 3, 10], "size": [8, 6, 6], "color": [0.45, 0.45, 0.4] },
+    { "type": "box", "name": "wallLeft", "position": [-25, 2.5, 10], "size": [40, 5, 1], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "wallRight", "position": [25, 2.5, 10], "size": [40, 5, 1], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "tower1", "position": [-44, 4, 10], "size": [4, 8, 4], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "tower2", "position": [44, 4, 10], "size": [4, 8, 4], "color": [0.4, 0.4, 0.4] },
+    { "type": "box", "name": "sandbag1", "position": [-5, 0.5, 0], "size": [3, 1, 1.5], "color": [0.6, 0.55, 0.35] },
+    { "type": "box", "name": "sandbag2", "position": [5, 0.5, 0], "size": [3, 1, 1.5], "color": [0.6, 0.55, 0.35] },
+    { "type": "box", "name": "vehicle", "position": [-15, 1.5, 20], "size": [5, 3, 8], "color": [0.3, 0.4, 0.3] },
+    { "type": "box", "name": "bunker1", "position": [20, 1.5, 30], "size": [8, 3, 5], "color": [0.45, 0.45, 0.4] },
+    { "type": "box", "name": "bunker2", "position": [-20, 1.5, 35], "size": [8, 3, 5], "color": [0.45, 0.45, 0.4] },
+    { "type": "box", "name": "innerWall", "position": [0, 2, 40], "size": [60, 4, 1], "color": [0.4, 0.4, 0.4] }
+  ],
+  "enemySpawns": [
+    { "type": "infantry", "position": [-10, 1, 15], "patrol": [[-10, 1, 15], [-15, 1, 20]] },
+    { "type": "infantry", "position": [10, 1, 15], "patrol": [[10, 1, 15], [15, 1, 20]] },
+    { "type": "sniper", "position": [-44, 8, 10], "patrol": [] },
+    { "type": "sniper", "position": [44, 8, 10], "patrol": [] },
+    { "type": "armored", "position": [0, 1, 25], "patrol": [[0, 1, 25], [5, 1, 35], [-5, 1, 35]] },
+    { "type": "armored", "position": [20, 1, 32], "patrol": [[20, 1, 32], [15, 1, 38]] },
+    { "type": "infantry", "position": [-20, 1, 38], "patrol": [[-20, 1, 38], [-25, 1, 44]] },
+    { "type": "infantry", "position": [5, 1, 45], "patrol": [[5, 1, 45], [-5, 1, 45]] }
+  ],
+  "pickups": [
+    { "type": "ammo", "weapon": "rifle", "position": [-8, 1, -5] },
+    { "type": "ammo", "weapon": "sniper", "position": [8, 1, -5] },
+    { "type": "health", "amount": 40, "position": [0, 1, 5] },
+    { "type": "ammo", "weapon": "shotgun", "position": [-12, 1, 22] },
+    { "type": "health", "amount": 30, "position": [15, 1, 30] }
+  ],
+  "weaponUnlock": null
+}
