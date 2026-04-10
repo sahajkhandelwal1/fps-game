@@ -104,3 +104,5 @@ scene.executeWhenReady(() => {
 });
 
 export { engine, scene };
+
+import '../player/PlayerController.js';
