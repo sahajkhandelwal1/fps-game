@@ -4,6 +4,9 @@
 const canvas = document.getElementById('renderCanvas');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
+// Validate required DOM elements
+if (!canvas) throw new Error('Required DOM element #renderCanvas not found');
+
 // --- Engine & Scene ---
 const engine = new BABYLON.Engine(canvas, true, {
   preserveDrawingBuffer: true,
@@ -26,7 +29,8 @@ camera.speed = 0.3;
 camera.minZ = 0.1;
 
 // --- Pointer lock ---
-canvas.addEventListener('click', () => canvas.requestPointerLock());
+const onCanvasClick = () => canvas.requestPointerLock();
+canvas.addEventListener('click', onCanvasClick);
 
 // --- Lighting ---
 // Directional light (sun-like, angled down-forward)
@@ -85,8 +89,18 @@ engine.runRenderLoop(() => scene.render());
 window.addEventListener('resize', () => engine.resize());
 
 // --- Hide loading overlay once the first frame renders ---
+// Add 10-second fallback in case the engine crashes before scene loads
+const loadingTimeout = setTimeout(() => {
+  if (loadingOverlay) {
+    loadingOverlay.textContent = 'Failed to load. Please refresh.';
+  }
+}, 10000);
+
 scene.executeWhenReady(() => {
-  loadingOverlay.classList.add('hidden');
+  clearTimeout(loadingTimeout);
+  if (loadingOverlay) {
+    loadingOverlay.classList.add('hidden');
+  }
 });
 
 export { engine, scene };
