@@ -179,6 +179,7 @@ const fireSingleShot = () => {
 };
 
 const startFiring = () => {
+  if (autoFireInterval !== null) { clearInterval(autoFireInterval); autoFireInterval = null; }
   const weapon = WEAPONS[currentWeaponId];
   isFiring = true;
   fireSingleShot();
@@ -218,6 +219,7 @@ const reload = () => {
 
   reloadTimer = setTimeout(() => {
     // Re-check current weapon hasn't changed (switch cancels reload but that clears reloadTimer)
+    // Safety: only applies if weapon hasn't switched (cancelReload clears this timer on switch)
     const needed  = weapon.magSize - state.mag;
     const toAdd   = Math.min(needed, state.reserve);
     state.mag    += toAdd;
@@ -245,6 +247,7 @@ const unscope = () => {
 };
 
 const toggleScope = () => {
+  if (isReloading) return;
   if (currentWeaponId !== 'sniper') return;
 
   isScoped = !isScoped;
@@ -296,27 +299,27 @@ const getAmmo = () => {
 // --- Event Listeners ---
 
 // Mouse down — start firing (left click only)
-window.addEventListener('mousedown', (evt) => {
+const onMouseDown = (evt) => {
   if (evt.button === 0) {
     startFiring();
   }
-});
+};
 
 // Mouse up — stop auto fire
-window.addEventListener('mouseup', (evt) => {
+const onMouseUp = (evt) => {
   if (evt.button === 0) {
     stopFiring();
   }
-});
+};
 
 // Right-click — toggle scope
-window.addEventListener('contextmenu', (evt) => {
+const onContextMenu = (evt) => {
   evt.preventDefault();
   toggleScope();
-});
+};
 
 // Keyboard — reload & weapon switch
-window.addEventListener('keydown', (evt) => {
+const onKeyDown = (evt) => {
   switch (evt.code) {
     case 'KeyR':
       reload();
@@ -333,10 +336,10 @@ window.addEventListener('keydown', (evt) => {
     default:
       break;
   }
-});
+};
 
 // Scroll wheel — cycle weapons
-window.addEventListener('wheel', (evt) => {
+const onWheel = (evt) => {
   const currentIndex = WEAPON_ORDER.indexOf(currentWeaponId);
   const direction    = evt.deltaY > 0 ? 1 : -1; // scroll down = next, scroll up = previous
 
@@ -352,6 +355,23 @@ window.addEventListener('wheel', (evt) => {
       break;
     }
   }
-});
+};
 
-export { getCurrentWeapon, switchWeapon, unlockWeapon, reload, getAmmo };
+window.addEventListener('mousedown', onMouseDown);
+window.addEventListener('mouseup', onMouseUp);
+window.addEventListener('contextmenu', onContextMenu);
+window.addEventListener('keydown', onKeyDown);
+window.addEventListener('wheel', onWheel);
+
+// --- Cleanup ---
+const destroy = () => {
+  window.removeEventListener('mousedown', onMouseDown);
+  window.removeEventListener('mouseup', onMouseUp);
+  window.removeEventListener('contextmenu', onContextMenu);
+  window.removeEventListener('keydown', onKeyDown);
+  window.removeEventListener('wheel', onWheel);
+  stopFiring();
+  cancelReload();
+};
+
+export { getCurrentWeapon, switchWeapon, unlockWeapon, reload, getAmmo, destroy };
