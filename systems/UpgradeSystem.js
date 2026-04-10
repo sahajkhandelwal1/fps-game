@@ -228,17 +228,9 @@ function hideUpgradeScreen() {
 continueBtn.addEventListener('click', async () => {
   hideUpgradeScreen();
 
-  const state = getState();
-  const nextIndex = state.currentLevelIndex; // nextLevel() was already called by Screens.js? No —
-  // We need to advance the level ourselves since the upgrade screen intercepts the flow.
-  // GameStateManager.nextLevel() increments currentLevelIndex.
-  // But Screens.js's Continue button (which is behind our overlay) also calls nextLevel().
-  // Since our overlay is z-index:200 and supersedes the level-complete screen, we handle it here.
-
-  // Import nextLevel dynamically to keep this module's dependencies clean
-  const { nextLevel, setGamePhase } = await import('../engine/GameStateManager.js');
-  nextLevel();
-
+  // nextLevel() is already called by Screens.js's Continue button (which fires before our overlay
+  // intercepts). So we just read the already-incremented currentLevelIndex from state.
+  const { setGamePhase } = await import('../engine/GameStateManager.js');
   const { currentLevelIndex } = getState();
 
   if (currentLevelIndex >= 7) {
@@ -250,18 +242,30 @@ continueBtn.addEventListener('click', async () => {
       setGamePhase('survival');
     } catch (err) {
       console.error('[UpgradeSystem] Failed to load survival level', err);
+      showUpgradeScreen();
+      const errMsg = document.createElement('div');
+      errMsg.textContent = 'Failed to load level. Please try again.';
+      errMsg.style.cssText = 'color:#e74c3c;text-align:center;margin-top:10px;';
+      document.getElementById('upgrade-overlay')?.appendChild(errMsg);
+      setTimeout(() => errMsg.remove(), 3000);
     }
   } else {
     const levelFile = `./levels/level${currentLevelIndex + 1}.json`;
-    try {
-      const r = await fetch(levelFile);
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const cfg = await r.json();
-      loadLevel(cfg);
-      setGamePhase('playing');
-    } catch (err) {
-      console.error('[UpgradeSystem] Failed to load level', currentLevelIndex + 1, err);
-    }
+    fetch(levelFile)
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(cfg => {
+        loadLevel(cfg);
+        setGamePhase('playing');
+      })
+      .catch(err => {
+        console.error('[UpgradeSystem] Failed to load level', currentLevelIndex + 1, err);
+        showUpgradeScreen();
+        const errMsg = document.createElement('div');
+        errMsg.textContent = 'Failed to load level. Please try again.';
+        errMsg.style.cssText = 'color:#e74c3c;text-align:center;margin-top:10px;';
+        document.getElementById('upgrade-overlay')?.appendChild(errMsg);
+        setTimeout(() => errMsg.remove(), 3000);
+      });
   }
 });
 

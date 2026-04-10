@@ -34,6 +34,7 @@ const cleanup = () => {
   window.removeEventListener('keydown', onKeyDown);
   window.removeEventListener('keyup', onKeyUp);
   window.removeEventListener('keydown', onJumpKeyDown);
+  window.removeEventListener('upgrade:applied', onUpgradeApplied);
 };
 
 // --- Jumping ---
@@ -83,6 +84,10 @@ const dispatchHPChanged = () => {
 };
 
 const dispatchDead = () => {
+  if (regenInterval !== null) {
+    clearInterval(regenInterval);
+    regenInterval = null;
+  }
   window.dispatchEvent(new CustomEvent('player:dead'));
 };
 
@@ -107,7 +112,7 @@ const heal = (amount) => {
 };
 
 // --- Upgrade: applied event handler ---
-window.addEventListener('upgrade:applied', (e) => {
+const onUpgradeApplied = (e) => {
   const { id } = e.detail;
 
   switch (id) {
@@ -119,7 +124,7 @@ window.addEventListener('upgrade:applied', (e) => {
 
     case 'hp_regen':
       // Start regen: +1 HP/sec when out of combat for 5 seconds
-      if (regenInterval !== null) break; // already running
+      if (regenInterval !== null) { clearInterval(regenInterval); regenInterval = null; }
       regenInterval = setInterval(() => {
         if (currentHP <= 0) return;
         const outOfCombat = (Date.now() - lastDamageTime) > 5000;
@@ -136,6 +141,7 @@ window.addEventListener('upgrade:applied', (e) => {
     default:
       break;
   }
-});
+};
+window.addEventListener('upgrade:applied', onUpgradeApplied);
 
 export { takeDamage, getHP, heal, camera, cleanup };

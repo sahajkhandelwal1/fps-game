@@ -374,12 +374,13 @@ const destroy = () => {
   window.removeEventListener('contextmenu', onContextMenu);
   window.removeEventListener('keydown', onKeyDown);
   window.removeEventListener('wheel', onWheel);
+  window.removeEventListener('upgrade:applied', onUpgradeApplied);
   stopFiring();
   cancelReload();
 };
 
 // --- Upgrade: applied event handler ---
-window.addEventListener('upgrade:applied', (e) => {
+const onUpgradeApplied = (e) => {
   const { id } = e.detail;
 
   switch (id) {
@@ -402,6 +403,7 @@ window.addEventListener('upgrade:applied', (e) => {
     default:
       break;
   }
-});
+};
+window.addEventListener('upgrade:applied', onUpgradeApplied);
 
 export { getCurrentWeapon, switchWeapon, unlockWeapon, reload, getAmmo, destroy };
