@@ -37,6 +37,9 @@ const ENEMY_TYPES = {
 /** @type {Map<string, object>} id → enemy object */
 const enemies = new Map();
 
+// Guard so the weapon:hit listener is registered only once per module load
+const eventController = new AbortController();
+
 // ---------------------------------------------------------------------------
 // Line-of-sight helper
 // ---------------------------------------------------------------------------
@@ -101,7 +104,6 @@ scene.onBeforeRenderObservable.add(() => {
           // Move toward waypoint
           const dir = toTarget.normalize();
           enemy.mesh.position.addInPlace(dir.scale(def.speed * dt));
-          enemy.headMesh.position = enemy.mesh.position.add(new BABYLON.Vector3(0, 1.2, 0));
         }
 
         if (distToPlayer < def.detectionRange) {
@@ -145,7 +147,6 @@ scene.onBeforeRenderObservable.add(() => {
         // Move toward player
         const toPlayerEngage = playerPos.subtract(enemyPos).normalize();
         enemy.mesh.position.addInPlace(toPlayerEngage.scale(def.speed * dt));
-        enemy.headMesh.position = enemy.mesh.position.add(new BABYLON.Vector3(0, 1.2, 0));
         enemy.mesh.lookAt(playerPos);
         break;
       }
@@ -166,7 +167,6 @@ scene.onBeforeRenderObservable.add(() => {
         if (enemy.type === 'heavy' && distToPlayer <= def.chargeRange) {
           const chargeDir = playerPos.subtract(enemyPos).normalize();
           enemy.mesh.position.addInPlace(chargeDir.scale(def.speed * 3 * dt));
-          enemy.headMesh.position = enemy.mesh.position.add(new BABYLON.Vector3(0, 1.2, 0));
         }
 
         // Shoot at fireRate (rpm → seconds per shot)
@@ -193,7 +193,6 @@ scene.onBeforeRenderObservable.add(() => {
         // Move away from player
         const awayFromPlayer = enemyPos.subtract(playerPos).normalize();
         enemy.mesh.position.addInPlace(awayFromPlayer.scale(def.speed * dt));
-        enemy.headMesh.position = enemy.mesh.position.add(new BABYLON.Vector3(0, 1.2, 0));
 
         if (enemy.retreatTimer >= 3 || distToPlayer > def.detectionRange) {
           enemy.retreatTimer = 0;
@@ -232,13 +231,14 @@ function spawnEnemy(id, type, position, patrolPath = []) {
   mesh.position = position.clone();
   mesh.metadata = { enemyId: id };
 
-  // Head — small sphere sitting on top of the capsule
+  // Head — small sphere sitting on top of the capsule, parented to body
   const headMesh = BABYLON.MeshBuilder.CreateSphere(
     `enemy_${id}_head`,
     { diameter: 0.5 },
     scene,
   );
-  headMesh.position = position.clone().add(new BABYLON.Vector3(0, 1.2, 0));
+  headMesh.parent = mesh;
+  headMesh.position = new BABYLON.Vector3(0, 1.2, 0);
   headMesh.metadata = { enemyId: id };
 
   // Shared material
@@ -293,14 +293,16 @@ function damageEnemy(id, amount, isHeadshot = false) {
     enemy.hp = 0;
     enemy.state = 'dead';
 
-    // Clean up meshes
-    enemy.mesh.dispose();
-    enemy.headMesh.dispose();
-    enemies.delete(id);
-
+    // Dispatch killed event BEFORE removing from map so getEnemyCount()
+    // returns the correct value inside any 'enemy:killed' handlers.
     window.dispatchEvent(
       new CustomEvent('enemy:killed', { detail: { id, type: enemy.type } }),
     );
+
+    // Clean up meshes and remove from tracking map
+    enemy.mesh.dispose();
+    enemy.headMesh.dispose();
+    enemies.delete(id);
   } else {
     window.dispatchEvent(
       new CustomEvent('enemy:damaged', {
@@ -333,15 +335,17 @@ function clearAllEnemies() {
     if (enemy.headMesh) enemy.headMesh.dispose();
   }
   enemies.clear();
+  // Remove the weapon:hit listener to prevent accumulation on re-import
+  eventController.abort();
 }
 
 // ---------------------------------------------------------------------------
-// Weapon hit listener
+// Weapon hit listener — registered once; cleaned up via eventController.abort()
 // ---------------------------------------------------------------------------
 window.addEventListener('weapon:hit', (e) => {
   const { enemyId, damage, isHeadshot } = e.detail;
   damageEnemy(enemyId, damage, isHeadshot);
-});
+}, { signal: eventController.signal });
 
 // ---------------------------------------------------------------------------
 // Exports
