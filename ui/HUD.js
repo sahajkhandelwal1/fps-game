@@ -156,7 +156,7 @@ function updateMinimap() {
   minimapCtx.restore();
 }
 
-setInterval(updateMinimap, 100);
+const minimapIntervalId = setInterval(updateMinimap, 100);
 
 // --- Event handlers ---
 

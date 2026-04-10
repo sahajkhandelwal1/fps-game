@@ -55,6 +55,7 @@ async function loadLevelByIndex(index) {
     loadLevel(cfg);
   } catch (err) {
     console.error('[Screens] Failed to load level', index + 1, err);
+    showScreen('screen-menu');
   }
 }
 
@@ -129,7 +130,7 @@ const lcContinue  = makeBtn('Continue', () => {
   // After level 7 (index 6) → survival
   if (next >= 7) {
     fetch('./levels/survival.json')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(`Failed to load survival: ${r.status}`); return r.json(); })
       .then(cfg => {
         hideAllScreens();
         loadLevel(cfg);
