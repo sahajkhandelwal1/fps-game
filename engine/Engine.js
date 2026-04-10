@@ -110,3 +110,5 @@ import '../player/WeaponSystem.js';
 import '../enemies/EnemyAI.js';
 import './GameStateManager.js';
 import './LevelLoader.js';
+import '../ui/HUD.js';
+import '../ui/Screens.js';
