@@ -29,6 +29,13 @@ const onKeyUp = (evt) => {
 window.addEventListener('keydown', onKeyDown);
 window.addEventListener('keyup', onKeyUp);
 
+// Cleanup function to remove event listeners
+const cleanup = () => {
+  window.removeEventListener('keydown', onKeyDown);
+  window.removeEventListener('keyup', onKeyUp);
+  window.removeEventListener('keydown', onJumpKeyDown);
+};
+
 // --- Jumping ---
 const GROUND_Y = 2;          // standing eye height
 const JUMP_IMPULSE = 8;      // units/sec upward velocity on jump
@@ -48,6 +55,7 @@ window.addEventListener('keydown', onJumpKeyDown);
 
 // Physics tick — runs every frame before render
 scene.onBeforeRenderObservable.add(() => {
+  if (!camera || !camera.position) return;
   if (!isGrounded) {
     const dt = scene.getEngine().getDeltaTime() / 1000; // convert ms → seconds
     verticalVelocity += GRAVITY * dt;
@@ -79,7 +87,8 @@ const takeDamage = (amount) => {
   if (currentHP <= 0) return; // already dead
   currentHP = Math.max(0, currentHP - amount);
   dispatchHPChanged();
-  if (currentHP <= 0) {
+  if (currentHP === 0) {
+    // first time reaching 0 — dispatch death
     dispatchDead();
   }
 };
@@ -92,4 +101,4 @@ const heal = (amount) => {
   dispatchHPChanged();
 };
 
-export { takeDamage, getHP, heal, camera };
+export { takeDamage, getHP, heal, camera, cleanup };
