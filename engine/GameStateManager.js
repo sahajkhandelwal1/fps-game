@@ -57,7 +57,7 @@ function resetState() {
   score = 0;
   upgradePoints = 0;
   activeUpgrades = new Set();
-  gamePhase = 'menu';
+  setGamePhase('menu');
   dispatchStateChange();
 }
 

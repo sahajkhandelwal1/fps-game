@@ -38,7 +38,7 @@ const ENEMY_TYPES = {
 const enemies = new Map();
 
 // Guard so the weapon:hit listener is registered only once per module load
-const eventController = new AbortController();
+let hitListenerRegistered = false;
 
 // ---------------------------------------------------------------------------
 // Line-of-sight helper
@@ -293,16 +293,16 @@ function damageEnemy(id, amount, isHeadshot = false) {
     enemy.hp = 0;
     enemy.state = 'dead';
 
-    // Dispatch killed event BEFORE removing from map so getEnemyCount()
-    // returns the correct value inside any 'enemy:killed' handlers.
-    window.dispatchEvent(
-      new CustomEvent('enemy:killed', { detail: { id, type: enemy.type } }),
-    );
-
-    // Clean up meshes and remove from tracking map
+    // Clean up meshes and remove from tracking map BEFORE dispatching the
+    // event so getEnemyCount() returns the correct (decremented) value
+    // inside any 'enemy:killed' handlers (e.g. the win condition check).
     enemy.mesh.dispose();
     enemy.headMesh.dispose();
     enemies.delete(id);
+
+    window.dispatchEvent(
+      new CustomEvent('enemy:killed', { detail: { id, type: enemy.type } }),
+    );
   } else {
     window.dispatchEvent(
       new CustomEvent('enemy:damaged', {
@@ -335,17 +335,18 @@ function clearAllEnemies() {
     if (enemy.headMesh) enemy.headMesh.dispose();
   }
   enemies.clear();
-  // Remove the weapon:hit listener to prevent accumulation on re-import
-  eventController.abort();
 }
 
 // ---------------------------------------------------------------------------
-// Weapon hit listener — registered once; cleaned up via eventController.abort()
+// Weapon hit listener — registered once via flag; persists across level loads
 // ---------------------------------------------------------------------------
-window.addEventListener('weapon:hit', (e) => {
-  const { enemyId, damage, isHeadshot } = e.detail;
-  damageEnemy(enemyId, damage, isHeadshot);
-}, { signal: eventController.signal });
+if (!hitListenerRegistered) {
+  window.addEventListener('weapon:hit', (e) => {
+    const { enemyId, damage, isHeadshot } = e.detail;
+    damageEnemy(enemyId, damage, isHeadshot);
+  });
+  hitListenerRegistered = true;
+}
 
 // ---------------------------------------------------------------------------
 // Exports
